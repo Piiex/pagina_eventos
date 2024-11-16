@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Obtener archivos existentes
-$archivos = $conn->query("SELECT id, file_name, uploaded_at FROM documentos WHERE user_id = $user_id ORDER BY uploaded_at DESC");
+$archivos = $conn->query("SELECT id, file_name, file_path, uploaded_at FROM documentos WHERE user_id = $user_id ORDER BY uploaded_at DESC");
 ?>
 
 <!DOCTYPE html>
@@ -96,13 +96,17 @@ $archivos = $conn->query("SELECT id, file_name, uploaded_at FROM documentos WHER
         </tr>
         </thead>
         <tbody>
-        <?php if ($archivos->num_rows > 0): ?>
+        <?php if ($archivos && $archivos->num_rows > 0): ?>
             <?php while ($archivo = $archivos->fetch_assoc()): ?>
                 <tr>
                     <td><?= htmlspecialchars($archivo['file_name']) ?></td>
                     <td><?= htmlspecialchars($archivo['uploaded_at']) ?></td>
                     <td>
-                        <a href="<?= htmlspecialchars($archivo['file_path']) ?>" target="_blank" class="btn btn-info btn-sm">Ver</a>
+                        <?php if (!empty($archivo['file_path'])): ?>
+                            <a href="<?= htmlspecialchars($archivo['file_path']) ?>" target="_blank" class="btn btn-info btn-sm">Ver</a>
+                        <?php else: ?>
+                            <span class="text-danger">Ruta no disponible</span>
+                        <?php endif; ?>
                         <a href="eliminar_documento.php?id=<?= $archivo['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que desea eliminar este documento?');">Eliminar</a>
                     </td>
                 </tr>

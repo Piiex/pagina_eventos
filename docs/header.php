@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id'])) {
@@ -25,7 +24,7 @@ if (!isset($_SESSION['user_id'])) {
                 <ul class="navbar-nav ms-auto">
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li class="nav-item">
-                            <a href="../dashboard" class="nav-link">Inicio</a>
+                            <a href="../dashboard.php" class="nav-link">Inicio</a>
                         </li>
                         <li class="nav-item">
                             <a href="../logout.php" class="nav-link">Cerrar Sesión</a>

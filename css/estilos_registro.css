@@ -1,0 +1,136 @@
+/* Estilos generales */
+body {
+    background-color: #f4f4f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+.banner-wrapper {
+    width: 100%;
+    max-width: 1000px; /* Limitar el ancho máximo */
+    background-color: #043d7c;
+    border-radius: 8px 8px 0 0;
+    padding: 20px;
+}
+.banner-container,
+.logo-container {
+    max-width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+}
+.banner-container img {
+    max-width: 90%; /* Reducir el tamaño máximo del banner */
+    height: auto;
+    border-radius: 4px;
+}
+.logo-container {
+    margin: 20px 0;
+}
+.logo-container img {
+    max-width: 200px; /* Limitar el tamaño máximo del logo */
+    height: auto;
+    border-radius: 4px;
+}
+.form-container {
+    width: 100%;
+    max-width: 1000px;
+    background-color: #fff;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+}
+.form-card {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+}
+.form-header {
+    text-align: center;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.header-title {
+    color: #043d7c;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.header-subtitle {
+    color: #666;
+    font-size: 18px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-label {
+    color: #043d7c;
+    font-weight: 600;
+}
+.form-control {
+    border-color: #ccc;
+}
+.btn-submit {
+    background-color: #043d7c;
+    border-color: #043d7c;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 30px;
+}
+.btn-submit:hover {
+    background-color: #032b53;
+    border-color: #032b53;
+}
+.alert {
+    margin-bottom: 20px;
+}
+
+/* Estilos responsivos específicos */
+
+/* Móviles */
+@media (max-width: 576px) {
+    .form-container {
+        padding: 20px;
+        width: 100%;
+    }
+    .form-card {
+        padding: 20px;
+    }
+    .header-title {
+        font-size: 24px;
+    }
+    .header-subtitle {
+        font-size: 16px;
+    }
+    .form-group {
+        width: 100%;
+    }
+    .col-md-6 {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .banner-container img, .logo-container img {
+        max-width: 100%; /* Ocupa el ancho completo en móvil */
+    }
+}
+
+/* Escritorio */
+@media (min-width: 577px) {
+    .form-container {
+        width: 60%;
+        margin: auto;
+    }
+    .col-md-6 {
+        display: inline-block;
+        width: 48%;
+        margin: 1%;
+    }
+}

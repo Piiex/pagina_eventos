@@ -1,0 +1,10 @@
+# Activar mod_rewrite
+RewriteEngine On
+
+# Quitar la extensión .php de las URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L]
+
+# Redirigir a index.php si no se encuentra la URL solicitada
+ErrorDocument 404 /index.php

@@ -1,0 +1,176 @@
+:root {
+    --primary-color: #007bff;
+    --primary-dark: #0056b3;
+    --background-color: #f8f9fa;
+    --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Banner container con aspect ratio */
+.banner-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 25%; /* Aspect ratio 4:1 */
+    margin-bottom: 50px; /* Aumentado para dar espacio al logo */
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.banner-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.banner-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Logo container con tamaño fijo y posición absoluta */
+.logo-container {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px; /* Tamaño fijo del contenedor */
+    height: 100px; /* Tamaño fijo del contenedor */
+    background: white;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.logo-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Mantiene las proporciones dentro del círculo */
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 60px auto 30px;
+}
+
+.form-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.form-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    padding: 30px 20px;
+    text-align: center;
+    color: white;
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.header-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.form-body {
+    padding: 40px;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+}
+
+.btn-submit {
+    background: var(--primary-color);
+    border: none;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.alert {
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .banner-wrapper {
+        padding-top: 40%; /* Aspect ratio más cuadrado para móviles */
+    }
+    
+    .logo-container {
+        width: 80px; /* Logo más pequeño en móviles */
+        height: 80px;
+        bottom: -30px;
+    }
+    
+    .form-body {
+        padding: 20px;
+    }
+    
+    .header-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .banner-wrapper {
+        padding-top: 50%; /* Aspect ratio aún más cuadrado para móviles pequeños */
+    }
+    
+    .logo-container {
+        width: 60px;
+        height: 60px;
+        bottom: -25px;
+    }
+}
+/*fin estilos registro

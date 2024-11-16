@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" action="">
             <div class="form-floating">
                 <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required>
-                <label for="correo">Correo electrónicoooooooooooooooooooooo</label>
+                <label for="correo">Correo electrónico</label>
             </div>
             <div class="form-floating">
                 <input type="password" class="form-control" id="clave" name="clave" placeholder="Contraseña" required>
@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn login-btn">Iniciar Sesión</button>
         </form>
     </div>
-    
+    s
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

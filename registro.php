@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <strong>Ubicación:</strong> Auditorio Principal
                             </p>
                             <p style='text-align: center; color: #666;'>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-                            <p style='text-align: center; margin-top: 20px; color: #999; font-size: 12px;'>© 2024 Brandon Auyon Estudiante. Todos los derechos reservados.</p>
+                            <p style='text-align: center; margin-top: 20px; color: #999; font-size: 12px;'>© 2024 Brandon Auyon Estudiante ISC. Todos los derechos reservados.</p>
                         </div>
                     </div>";
 
@@ -145,111 +145,113 @@ if (isset($_SESSION['success_message'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro al Evento</title>
+    <title>Registro al Evento </title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-   
+    <meta name="theme-color" content="#121212">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<link rel="stylesheet" href="css/estilos_registro.css">
+
 <body>
-    <div class="page-container">
-        <?php if ($success_message): ?>
-            <div class="alert alert-success text-center animate__animated animate__fadeInDown">
-                <i class="fas fa-check-circle me-2"></i>
-                <?= $success_message ?>
-            </div>
-        <?php endif; ?>
+<link rel="stylesheet" href="css/registro.css">
+<div class="page-container">
+    <!-- Sección de la imagen -->
+    <div class="image-section">
+    <div class="logo-container">
+        <img src="<?= htmlspecialchars($logo) ?>" alt="Logo del Evento" class="logo-image">
+    </div>
+    <img src="<?= htmlspecialchars($banner) ?>" alt="Banner del Evento" class="banner-image">
+    <div class="text-overlay">
+        
+        <h1>Bienvenido a Nuestro Evento <?= htmlspecialchars(str_replace('_', ' ', $nombre_tabla)) ?></h1>
+        <p></p>
+    </div>
+</div>
 
-        <div class="banner-wrapper animate__animated animate__fadeIn">
-            <div class="banner-container">
-                <img src="<?= htmlspecialchars($banner) ?>" alt="Banner del Evento">
-            </div>
-        </div>
-
-        <div class="logo-container animate__animated animate__fadeIn">
-            <img src="<?= htmlspecialchars($logo) ?>" alt="Logo del Evento">
-        </div>
-
+    <!-- Sección del formulario -->
+    <div class="form-section">
         <div class="form-container">
-            <div class="form-card animate__animated animate__fadeInUp">
-                <div class="form-header">
-                    <h1 class="header-title">Registro al Evento</h1>
-                    <div class="header-subtitle"><?= htmlspecialchars(str_replace('_', ' ', $nombre_tabla)) ?></div>
+            <h2>Registro</h2>
+            <!-- Mensaje de éxito -->
+            <?php if ($success_message): ?>
+                <div class="alert alert-success text-center">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <?= $success_message ?>
                 </div>
+            <?php endif; ?>
+            <!-- Formulario dinámico -->
+            <form method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <?php foreach ($campos as $campo): ?>
+                        <div class="mb-3">
+                            <label for="<?= htmlspecialchars($campo['Field']) ?>" class="form-label">
+                                <?= ucfirst(str_replace('_', ' ', $campo['Field'])) ?>
+                            </label>
+                            <?php
+                            $inputType = 'text';
+                            $additionalAttributes = '';
 
-                <div class="form-body">
-                    <form method="post" class="needs-validation" novalidate>
-                        <div class="row">
-                            <?php foreach ($campos as $campo): ?>
-                                <div class="col-md-6 mb-4">
-                                    <div class="form-group">
-                                        <label for="<?= htmlspecialchars($campo['Field']) ?>" class="form-label">
-                                            <?= ucfirst(str_replace('_', ' ', $campo['Field'])) ?>
-                                        </label>
-                                        <?php
-                                        $inputType = 'text';
-                                        $additionalAttributes = '';
+                            // Configuración dinámica del tipo de campo
+                            if (strtolower($campo['Field']) === 'genero') {
+                                echo "
+                                <select name='" . htmlspecialchars($campo['Field']) . "' class='form-control' required>
+                                    <option value=''>Seleccionar</option>
+                                    <option value='Hombre'>Hombre</option>
+                                    <option value='Mujer'>Mujer</option>
+                                    <option value='Otro'>Otro</option>
+                                </select>";
+                                continue;
+                            }
 
-                                        if (strtolower($campo['Field']) === 'genero') {
-                                            echo "
-                                            <select name='genero' class='form-control' required>
-                                                <option value=''>Seleccionar</option>
-                                                <option value='Hombre'>Hombre</option>
-                                                <option value='Mujer'>Mujer</option>
-                                                <option value='Otro'>Otro</option>
-                                            </select>";
-                                            continue;
-                                        }
-
-                                        if (strpos($campo['Type'], 'int') !== false || stripos($campo['Field'], 'edad') !== false) {
-                                            $inputType = 'number';
-                                            $additionalAttributes = 'min="1"';
-                                        } elseif (strpos($campo['Type'], 'date') !== false) {
-                                            $inputType = 'date';
-                                        } elseif (stripos($campo['Field'], 'email') !== false) {
-                                            $inputType = 'email';
-                                        }
-                                        ?>
-                                        <input type="<?= $inputType ?>" 
-                                               name="<?= htmlspecialchars($campo['Field']) ?>" 
-                                               class="form-control" 
-                                               id="<?= htmlspecialchars($campo['Field']) ?>" 
-                                               required
-                                               <?= $additionalAttributes ?>>
-                                        <div class="invalid-feedback">
-                                            Este campo es requerido
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+                            if (strpos($campo['Type'], 'int') !== false || stripos($campo['Field'], 'edad') !== false) {
+                                $inputType = 'number';
+                                $additionalAttributes = 'min="1"';
+                            } elseif (strpos($campo['Type'], 'date') !== false) {
+                                $inputType = 'date';
+                            } elseif (stripos($campo['Field'], 'email') !== false) {
+                                $inputType = 'email';
+                            }
+                            ?>
+                            <input type="<?= $inputType ?>" 
+                                   name="<?= htmlspecialchars($campo['Field']) ?>" 
+                                   class="form-control" 
+                                   id="<?= htmlspecialchars($campo['Field']) ?>" 
+                                   required
+                                   <?= $additionalAttributes ?>>
+                            <div class="invalid-feedback">
+                                Este campo es requerido.
+                            </div>
                         </div>
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-submit">
-                                <i class="fas fa-paper-plane me-2"></i>Registrar
-                            </button>
-                        </div>
-                    </form>
+                    <?php endforeach; ?>
                 </div>
-            </div>
+                <div class="form-check mb-3">
+    <input type="checkbox" class="form-check-input" id="terms" required>
+    <label class="form-check-label" for="terms">Acepto los términos y condiciones</label>
+    <button type="button" class="btn-open" onclick="window.open('terminos', '_blank')">Ver Términos</button>
+</div>
+
+                <button type="submit" class="btn btn-submit">Registrar</button>
+            </form>
         </div>
     </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-    <script>
-        (function() {
-            'use strict';
-            var forms = document.querySelectorAll('.needs-validation');
-            Array.prototype.slice.call(forms).forEach(function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        })();
-    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Validación del formulario en tiempo real
+    (function() {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
 </body>
 </html>

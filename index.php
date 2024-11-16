@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" action="">
             <div class="form-floating">
                 <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required>
-                <label for="correo">Correo electrónico</label>
+                <label for="correo">Correo electrónicooooooo</label>
             </div>
             <div class="form-floating">
                 <input type="password" class="form-control" id="clave" name="clave" placeholder="Contraseña" required>

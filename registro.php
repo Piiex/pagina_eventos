@@ -198,7 +198,7 @@ if (isset($_SESSION['success_message'])) {
                                     <option value=''>Seleccionar</option>
                                     <option value='Hombre'>Hombre</option>
                                     <option value='Mujer'>Mujer</option>
-                                    <option value='Otro'>Otro</option>
+                                    
                                 </select>";
                                 continue;
                             }

@@ -177,6 +177,7 @@ function corregirTexto($texto) {
         'tecnologa' => 'tecnología',
         'informtica' => 'informática',
         'programacin' => 'programación',
+        'ingeniera' => 'ingeniería',
         // Agrega más correcciones según sea necesario
     ];
 

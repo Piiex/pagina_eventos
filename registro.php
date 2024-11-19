@@ -161,9 +161,45 @@ if (isset($_SESSION['success_message'])) {
         <img src="<?= htmlspecialchars($logo) ?>" alt="Logo del Evento" class="logo-image">
         
     </div>
+
     <div class="text-overlay">
-    <h1>BIENVENIDO A NUESTRO EVENTO <?= htmlspecialchars(strtoupper(str_replace('_', ' ', $nombre_tabla))) ?></h1>
+    <h1>
+        BIENVENIDO A NUESTRO EVENTO 
+        <?= htmlspecialchars(strtoupper(str_replace('_', ' ', corregirTexto($nombre_tabla)))) ?>
+    </h1>
 </div>
+
+<?php
+// Función para corregir ortografía
+function corregirTexto($texto) {
+    // Lista de correcciones comunes
+    $correcciones = [
+        'tecnologa' => 'tecnología',
+        'informtica' => 'informática',
+        'programacin' => 'programación',
+        // Agrega más correcciones según sea necesario
+    ];
+
+    // No corregir palabras entre comillas
+    preg_match_all('/"([^"]*)"/', $texto, $exclusiones);
+    foreach ($exclusiones[1] as $excluido) {
+        $texto = str_replace('"' . $excluido . '"', '##EXCLUIR_' . $excluido . '_##', $texto);
+    }
+
+    // Aplicar correcciones
+    foreach ($correcciones as $mal => $bien) {
+        $texto = str_ireplace($mal, $bien, $texto);
+    }
+
+    // Restaurar palabras excluidas
+    foreach ($exclusiones[1] as $excluido) {
+        $texto = str_replace('##EXCLUIR_' . $excluido . '_##', '"' . $excluido . '"', $texto);
+    }
+
+    return $texto;
+}
+?>
+
 
     
     <img src="<?= htmlspecialchars($banner) ?>" alt="Banner del Evento" class="banner-image">

@@ -108,7 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container">
     <h2>Registro de Asistencia para <?= htmlspecialchars(str_replace('_', ' ', $evento)) ?></h2>
     <p>Escanea tu código QR para registrar tu asistencia.</p>
-    
+
+    <!-- Selector de cámaras -->
+    <select id="cameraSelect" class="form-select mt-3" style="width: 100%; max-width: 400px;"></select>
+
     <!-- Vista de la cámara para el escaneo QR -->
     <video id="video" autoplay></video>
     <div id="qr-reader-results"></div>
@@ -120,24 +123,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-    // Configuración del lector QR usando ZXing
     const codeReader = new ZXing.BrowserQRCodeReader();
+    const videoElement = document.getElementById('video');
+    const cameraSelect = document.getElementById('cameraSelect');
+    const pauseTime = 2000; // Pausa de 2 segundos
+    let isPaused = false;
+
+    // Obtener dispositivos de video
     codeReader.getVideoInputDevices()
         .then(videoInputDevices => {
             if (videoInputDevices.length > 0) {
-                // Usar la cámara trasera si está disponible
-                const selectedDeviceId = videoInputDevices[0].deviceId;
-                codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, error) => {
-                    if (result) {
-                        // Código QR detectado, enviarlo al formulario
-                        document.getElementById('codigo_qr').value = result.text;
-                        document.getElementById('form-entrada').submit();
-                        // Detener el escáner después de una lectura exitosa
-                        codeReader.reset();
-                    }
-                    if (error && !(error instanceof ZXing.NotFoundException)) {
-                        console.error(error);
-                    }
+                // Crear opciones en el selector de cámaras
+                videoInputDevices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.textContent = device.label || `Cámara ${index + 1}`;
+                    cameraSelect.appendChild(option);
+                });
+
+                // Iniciar con la cámara seleccionada por defecto
+                startScanner(videoInputDevices[0].deviceId);
+
+                // Cambiar de cámara al seleccionar una nueva
+                cameraSelect.addEventListener('change', () => {
+                    if (isPaused) return; // No cambiar mientras está pausado
+                    codeReader.reset();
+                    startScanner(cameraSelect.value);
                 });
             } else {
                 document.getElementById("qr-reader-results").innerHTML =
@@ -145,9 +156,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         })
         .catch(err => {
+            console.error("Error al acceder a las cámaras:", err);
             document.getElementById("qr-reader-results").innerHTML =
                 `<div class="alert alert-danger">Error al acceder a la cámara: ${err}</div>`;
         });
+
+    function startScanner(deviceId) {
+        codeReader.decodeFromVideoDevice(deviceId, 'video', (result, error) => {
+            if (result && !isPaused) {
+                isPaused = true; // Pausar el escáner
+                // Código QR detectado, enviarlo al formulario
+                document.getElementById('codigo_qr').value = result.text;
+                document.getElementById('form-entrada').submit();
+                // Mostrar un mensaje de pausa
+                document.getElementById("qr-reader-results").innerHTML =
+                    `<div class="alert alert-success">QR detectado. Esperando...</div>`;
+                // Detener el escáner durante la pausa
+                setTimeout(() => {
+                    isPaused = false;
+                    document.getElementById("qr-reader-results").innerHTML = '';
+                }, pauseTime);
+            }
+            if (error && !(error instanceof ZXing.NotFoundException)) {
+                console.error(error);
+            }
+        });
+    }
 </script>
 </body>
 </html>

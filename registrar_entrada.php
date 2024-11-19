@@ -123,65 +123,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-    const codeReader = new ZXing.BrowserQRCodeReader();
-    const videoElement = document.getElementById('video');
-    const cameraSelect = document.getElementById('cameraSelect');
-    const pauseTime = 2000; // Pausa de 2 segundos
-    let isPaused = false;
+  const codeReader = new ZXing.BrowserQRCodeReader();
+const videoElement = document.getElementById('video');
+const cameraSelect = document.getElementById('cameraSelect');
+const pauseTime = 2000; // Pausa de 2 segundos
+let isPaused = false;
 
-    // Obtener dispositivos de video
-    codeReader.getVideoInputDevices()
-        .then(videoInputDevices => {
-            if (videoInputDevices.length > 0) {
-                // Crear opciones en el selector de cámaras
-                videoInputDevices.forEach((device, index) => {
-                    const option = document.createElement('option');
-                    option.value = device.deviceId;
-                    option.textContent = device.label || `Cámara ${index + 1}`;
-                    cameraSelect.appendChild(option);
-                });
+// Obtener dispositivos de video
+codeReader.getVideoInputDevices()
+    .then(videoInputDevices => {
+        if (videoInputDevices.length > 0) {
+            let defaultCameraId = null;
 
-                // Iniciar con la cámara seleccionada por defecto
-                startScanner(videoInputDevices[0].deviceId);
+            // Crear opciones en el selector de cámaras y priorizar la cámara trasera
+            videoInputDevices.forEach((device, index) => {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                option.textContent = device.label || `Cámara ${index + 1}`;
 
-                // Cambiar de cámara al seleccionar una nueva
-                cameraSelect.addEventListener('change', () => {
-                    if (isPaused) return; // No cambiar mientras está pausado
+                if (device.label.toLowerCase().includes('back')) {
+                    defaultCameraId = device.deviceId; // Preferir la cámara trasera
+                }
+
+                cameraSelect.appendChild(option);
+            });
+
+            // Usar la cámara trasera como predeterminada si está disponible
+            defaultCameraId = defaultCameraId || videoInputDevices[0].deviceId; // Si no hay trasera, usar la primera disponible
+            cameraSelect.value = defaultCameraId;
+
+            startScanner(defaultCameraId);
+
+            // Cambiar de cámara al seleccionar una nueva
+            cameraSelect.addEventListener('change', () => {
+                if (!isPaused) {
                     codeReader.reset();
                     startScanner(cameraSelect.value);
-                });
-            } else {
-                document.getElementById("qr-reader-results").innerHTML =
-                    `<div class="alert alert-danger">No se encontraron cámaras.</div>`;
-            }
-        })
-        .catch(err => {
-            console.error("Error al acceder a las cámaras:", err);
+                }
+            });
+        } else {
             document.getElementById("qr-reader-results").innerHTML =
-                `<div class="alert alert-danger">Error al acceder a la cámara: ${err}</div>`;
-        });
+                `<div class="alert alert-danger">No se encontraron cámaras.</div>`;
+        }
+    })
+    .catch(err => {
+        console.error("Error al acceder a las cámaras:", err);
+        document.getElementById("qr-reader-results").innerHTML =
+            `<div class="alert alert-danger">Error al acceder a la cámara: ${err}</div>`;
+    });
 
-    function startScanner(deviceId) {
-        codeReader.decodeFromVideoDevice(deviceId, 'video', (result, error) => {
-            if (result && !isPaused) {
-                isPaused = true; // Pausar el escáner
-                // Código QR detectado, enviarlo al formulario
-                document.getElementById('codigo_qr').value = result.text;
-                document.getElementById('form-entrada').submit();
-                // Mostrar un mensaje de pausa
-                document.getElementById("qr-reader-results").innerHTML =
-                    `<div class="alert alert-success">QR detectado. Esperando...</div>`;
-                // Detener el escáner durante la pausa
-                setTimeout(() => {
-                    isPaused = false;
-                    document.getElementById("qr-reader-results").innerHTML = '';
-                }, pauseTime);
-            }
-            if (error && !(error instanceof ZXing.NotFoundException)) {
-                console.error(error);
-            }
-        });
-    }
+function startScanner(deviceId) {
+    codeReader.decodeFromVideoDevice(deviceId, 'video', (result, error) => {
+        if (result && !isPaused) {
+            isPaused = true; // Pausar el escáner
+            // Código QR detectado, enviarlo al formulario
+            document.getElementById('codigo_qr').value = result.text;
+            document.getElementById('form-entrada').submit();
+            // Mostrar un mensaje de pausa
+            document.getElementById("qr-reader-results").innerHTML =
+                `<div class="alert alert-success">QR detectado. Esperando...</div>`;
+            // Detener el escáner durante la pausa
+            setTimeout(() => {
+                isPaused = false;
+                document.getElementById("qr-reader-results").innerHTML = '';
+            }, pauseTime);
+        }
+        if (error && !(error instanceof ZXing.NotFoundException)) {
+            console.error(error);
+        }
+    });
+}
+
 </script>
+
 </body>
 </html>

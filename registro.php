@@ -159,18 +159,22 @@ if (isset($_SESSION['success_message'])) {
     <div class="image-section">
     <div class="logo-container">
         <img src="<?= htmlspecialchars($logo) ?>" alt="Logo del Evento" class="logo-image">
-    </div>
-    <img src="<?= htmlspecialchars($banner) ?>" alt="Banner del Evento" class="banner-image">
-    <div class="text-overlay">
         
-        <h1>Bienvenido a Nuestro Evento <?= htmlspecialchars(str_replace('_', ' ', $nombre_tabla)) ?></h1>
-        <p></p>
     </div>
+    <div class="text-overlay">
+    <h1>BIENVENIDO A NUESTRO EVENTO <?= htmlspecialchars(strtoupper(str_replace('_', ' ', $nombre_tabla))) ?></h1>
+</div>
+
+    
+    <img src="<?= htmlspecialchars($banner) ?>" alt="Banner del Evento" class="banner-image">
+    
 </div>
 
     <!-- Sección del formulario -->
     <div class="form-section">
+        
         <div class="form-container">
+            
             <h2>Registro</h2>
             <!-- Mensaje de éxito -->
             <?php if ($success_message): ?>

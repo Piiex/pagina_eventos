@@ -3,7 +3,6 @@ include 'header.php';
 // Verificar si el usuario está autenticado
 
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -82,6 +81,18 @@ include 'header.php';
                         <h5 class="card-title">Documentos</h5>
                         <p class="card-text">Sube y gestiona tus documentos.</p>
                         <a href="docs/documentos.php" class="btn btn-primary">Ir a Documentos</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asistencia -->
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="icon-lg mb-3"><i class="bi bi-check-circle"></i></div>
+                        <h5 class="card-title">Asistencia</h5>
+                        <p class="card-text">Gestiona la asistencia de los eventos.</p>
+                        <a href="asistencia/asistencia" class="btn btn-primary">Gestionar Asistencia</a>
                     </div>
                 </div>
             </div>

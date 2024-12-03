@@ -25,7 +25,7 @@ if ($result->num_rows === 0) {
 $evento_config = $result->fetch_assoc();
 $banner = $evento_config['banner'] ?? '';
 $logo = $evento_config['logo'] ?? '';
-$descripcion = $evento_config['descripcion'] ?? '';
+$descripccion = $evento_config['descripccion'] ?? '';
 
 // Obtener columnas existentes
 $columnas = $conn->query("DESCRIBE $nombre_tabla");
@@ -53,18 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         switch ($_POST['action']) {
             case 'actualizar_info_evento':
                 $nuevo_nombre_tabla = preg_replace('/[^a-zA-Z0-9_]/', '', strtolower($_POST['nombre_tabla']));
-                $descripcion = filter_var($_POST['descripcion'], FILTER_SANITIZE_STRING);
+                $descripccion = filter_var($_POST['descripccion'], FILTER_SANITIZE_STRING);
 
                 // Actualizar nombre de tabla y descripción
                 if (!empty($nuevo_nombre_tabla) && $nuevo_nombre_tabla !== $nombre_tabla) {
                     $conn->query("RENAME TABLE `$nombre_tabla` TO `$nuevo_nombre_tabla`");
-                    $stmt = $conn->prepare("UPDATE configuracion_eventos SET tabla = ?, descripcion = ? WHERE tabla = ? AND user_id = ?");
-                    $stmt->bind_param("sssi", $nuevo_nombre_tabla, $descripcion, $nombre_tabla, $user_id);
+                    $stmt = $conn->prepare("UPDATE configuracion_eventos SET tabla = ?, descripccion = ? WHERE tabla = ? AND user_id = ?");
+                    $stmt->bind_param("sssi", $nuevo_nombre_tabla, $descripccion, $nombre_tabla, $user_id);
                     $stmt->execute();
                     $nombre_tabla = $nuevo_nombre_tabla;
                 } else {
-                    $stmt = $conn->prepare("UPDATE configuracion_eventos SET descripcion = ? WHERE tabla = ? AND user_id = ?");
-                    $stmt->bind_param("ssi", $descripcion, $nombre_tabla, $user_id);
+                    $stmt = $conn->prepare("UPDATE configuracion_eventos SET descripccion = ? WHERE tabla = ? AND user_id = ?");
+                    $stmt->bind_param("ssi", $descripccion, $nombre_tabla, $user_id);
                     $stmt->execute();
                 }
                 break;
@@ -86,7 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $nombre_original = filter_var($campo['nombre_original'], FILTER_SANITIZE_STRING);
                         $nombre_nuevo = preg_replace('/[^a-zA-Z0-9_]/', '', strtolower($campo['nombre']));
                         $tipo = strtoupper($campo['tipo']);
-                        if (!empty($nombre_original) && !empty($nombre_nuevo) && !empty($tipo)) {
+                        
+                        // Nuevo campo
+                        if (empty($nombre_original)) {
+                            if (!empty($nombre_nuevo) && !empty($tipo)) {
+                                $conn->query("ALTER TABLE `$nombre_tabla` ADD COLUMN `$nombre_nuevo` $tipo");
+                            }
+                        }
+                        // Campo existente
+                        else {
                             if ($nombre_original !== $nombre_nuevo) {
                                 $conn->query("ALTER TABLE `$nombre_tabla` CHANGE `$nombre_original` `$nombre_nuevo` $tipo");
                             } else {
@@ -95,23 +103,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 }
+                
                 break;
 
-            case 'actualizar_archivos':
-                if (isset($_FILES['banner']) && $_FILES['banner']['error'] === UPLOAD_ERR_OK) {
-                    $upload_result = procesarArchivo($_FILES['banner'], 'banners/', $conn, $nombre_tabla, $user_id, 'banner');
-                    if ($upload_result['success']) {
-                        $banner = $upload_result['path'];
+                case 'actualizar_archivos':
+                    // Verificar si se subió un banner
+                    if (isset($_FILES['banner']) && $_FILES['banner']['error'] === UPLOAD_ERR_OK) {
+                        $upload_result = procesarArchivo($_FILES['banner'], 'banners/', $conn, $nombre_tabla, $user_id, 'banner');
+                        if ($upload_result['success']) {
+                            $banner = $upload_result['path']; // Actualizar el valor del banner
+                        } else {
+                            error_log("Error al procesar el banner: " . $upload_result['error']);
+                        }
                     }
-                }
-
-                if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-                    $upload_result = procesarArchivo($_FILES['logo'], 'logos/', $conn, $nombre_tabla, $user_id, 'logo');
-                    if ($upload_result['success']) {
-                        $logo = $upload_result['path'];
+                
+                    // Verificar si se subió un logo
+                    if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+                        $upload_result = procesarArchivo($_FILES['logo'], 'logos/', $conn, $nombre_tabla, $user_id, 'logo');
+                        if ($upload_result['success']) {
+                            $logo = $upload_result['path']; // Actualizar el valor del logo
+                        } else {
+                            error_log("Error al procesar el logo: " . $upload_result['error']);
+                        }
                     }
-                }
-                break;
+                    break;
+                
                 case 'actualizar_smtp':
                     $smtp_host = filter_var($_POST['smtp_host'], FILTER_SANITIZE_STRING);
                     $smtp_port = filter_var($_POST['smtp_port'], FILTER_SANITIZE_NUMBER_INT);
@@ -132,22 +148,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function procesarArchivo($file, $directory, $conn, $nombre_tabla, $user_id, $tipo) {
+    // Crear directorio si no existe
     if (!is_dir($directory)) {
-        mkdir($directory, 0777, true);
+        if (!mkdir($directory, 0777, true)) {
+            return ['success' => false, 'error' => "No se pudo crear el directorio $directory."];
+        }
     }
 
+    // Obtener la imagen anterior de la base de datos
+    $stmt = $conn->prepare("SELECT $tipo FROM configuracion_eventos WHERE tabla = ? AND user_id = ?");
+    $stmt->bind_param("si", $nombre_tabla, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $archivo_anterior = $row[$tipo];
+
+        // Eliminar el archivo anterior si existe
+        if (!empty($archivo_anterior) && file_exists($archivo_anterior)) {
+            unlink($archivo_anterior);
+        }
+    }
+
+    // Generar un nombre único para el archivo
     $fileName = basename($file['name']);
     $filePath = $directory . uniqid() . '_' . $fileName;
 
-    if (move_uploaded_file($file['tmp_name'], $filePath)) {
-        $stmt = $conn->prepare("UPDATE configuracion_eventos SET $tipo = ? WHERE tabla = ? AND user_id = ?");
-        $stmt->bind_param("ssi", $filePath, $nombre_tabla, $user_id);
-        $stmt->execute();
+    // Mover el archivo al directorio
+    if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+        return ['success' => false, 'error' => "Error al mover el archivo al directorio $directory."];
+    }
+
+    // Actualizar la base de datos con la nueva ruta del archivo
+    $stmt = $conn->prepare("UPDATE configuracion_eventos SET $tipo = ? WHERE tabla = ? AND user_id = ?");
+    $stmt->bind_param("ssi", $filePath, $nombre_tabla, $user_id);
+
+    if ($stmt->execute()) {
         return ['success' => true, 'path' => $filePath];
     }
 
-    return ['success' => false, 'error' => "Error al subir el archivo."];
+    return ['success' => false, 'error' => "Error al actualizar la base de datos."];
 }
+
 
 
 ?>
@@ -205,8 +248,8 @@ function procesarArchivo($file, $directory, $conn, $nombre_tabla, $user_id, $tip
                     </div>
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required>
-                            <?= htmlspecialchars($descripcion) ?>
+                        <textarea class="form-control" id="descripccion" name="descripccion" rows="3" required>
+                            <?= htmlspecialchars($descripccion) ?>
                         </textarea>
                     </div>
                     <button type="submit" class="btn btn-primary btn-action">
@@ -232,8 +275,8 @@ function procesarArchivo($file, $directory, $conn, $nombre_tabla, $user_id, $tip
                                     <div class="col-md-5">
                                         <input type="text" name="campos[<?= $index ?>][nombre]" class="form-control" value="<?= htmlspecialchars($campo['Field']) ?>" required placeholder="Nombre del campo">
                                     </div>
-                                    <div class="col-md-5">
-                                        <select name="campos[<?= $index ?>][tipo]" class="form-control">
+                                    <!--<div class="col-md-5">
+                                      <select name="campos[<?= $index ?>][tipo]" class="form-control">
                                             <?php
                                             $currentType = getDatabaseFieldType($campo['Type']);
                                             $availableTypes = [
@@ -250,7 +293,7 @@ function procesarArchivo($file, $directory, $conn, $nombre_tabla, $user_id, $tip
                                                 <option value="<?= $value ?>" <?= $selected ?>><?= $label ?></option>
                                             <?php endforeach; ?>
                                         </select>
-                                    </div>
+                                    </div>-->
                                     <div class="col-md-2 text-end">
                                         <button type="button" class="btn btn-danger btn-action" onclick="eliminarCampo(this, '<?= htmlspecialchars($campo['Field']) ?>')">
                                             <i class="fas fa-trash"></i>
